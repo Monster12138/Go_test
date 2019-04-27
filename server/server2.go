@@ -1,4 +1,4 @@
-//server2 is a mini echo and count server
+//server2 is a mini echo and counter server
 package main
 
 import (

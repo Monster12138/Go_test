@@ -1,16 +1,13 @@
 //It's a temp program
 package main
 
-import "fmt"
-
-func gcd(x, y int) int {
-    for y != 0 {
-        x, y = y, x%y
-        fmt.Printf("%d %d\n", x, y)
-    }
-    return x
-}
+import (
+    "basename"
+    "fmt"
+)
 
 func main() {
-    gcd(6, 8)
+    var s string = "a/b/c.go"
+    s = basename.Basename(s)
+    fmt.Println(s)
 }

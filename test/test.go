@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-    var s string = "a/b/c.go"
-    s = basename.Basename(s)
+    var s string = "a/b/cccc.go"
+    s = basename.Basename2(s)
     fmt.Println(s)
 }

@@ -10,6 +10,9 @@ import (
     "unicode/utf8"
     "encoding/json"
     "log"
+    "github"
+    "time"
+    "template"
 )
 
 func nonempty(strings []string)[]string {
@@ -195,13 +198,63 @@ func json_test() {
         { Title:"Cool Hand Luke", Year: 1967, Color: true,
             Actors: []string{"Steve McQueen", "Jacqueline Bisset"}},
     }
+    /*
     data, err := json.Marshal(movies)
     if err != nil {
         log.Fatalf("JSON marshaling failed: %s", err)
     }
+    fmt.Printf("%s\n\n", data)
+    */
+    data, err := json.MarshalIndent(movies, "", "   ")
+    if err != nil {
+        log.Fatalf("JSON marshaling failed: %s", err)
+    }
     fmt.Printf("%s\n", data)
+
+    var titles []struct{ Title string }
+    if err := json.Unmarshal(data, &titles); err != nil {
+        log.Fatalf("JSON unmarshaling faild: %s", err)
+    }
+    fmt.Println(titles)
 }
 
+func github_test() {
+    result, err := github.SearchIssues(os.Args[1:])
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("%d issues:\n", result.TotalCount)
+    for _, item := range result.Items {
+        fmt.Printf("#%-5d %9.9s %.55s\n",
+            item.Number, item.User.Login, item.Title)
+    }
+}
+
+const templ = `{{.TotalCount}} issues:{{range .Items}}
+Number: {{.Number}}
+User:   {{.User.Login}}
+Title:  {{.Title | printf "%.64s"}}
+Age:    {{CreatedAt | daysAgo}} days
+{{end}}`
+
+func daysAgo(t time.Time) int {
+    return int(time.Since(t).Hours() / 24)
+}
+
+func   issues_test() {
+    result, err := github.SearchIssues(os.Args[1:])
+    if err != nil {
+        log.Fatal(err)
+    }
+    if err := report.Execute(os.Stdout, result); err != nil {
+        log.Fatal(err)
+    }
+}
+
+var report = template.Must(template.New("issuelist")).
+    Funcs(template.FuncMap{"daysAgo": daysAgo}).
+        Parse(templ)
+
 func main() {
-    json_test()
+    issues_test()
 }
